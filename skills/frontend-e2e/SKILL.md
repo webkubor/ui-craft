@@ -57,6 +57,32 @@ metadata:
 
 可选的 ego-browser 诊断示例见 [page-check.cjs](scripts/page-check.cjs)：它采集页面、事件与截图，不执行完整验收；先确认本机驱动 API 兼容。
 
+## 真实渲染度量（度量值，不是 class 名）
+
+「原型要求 32px / 13px / 600 / 等宽数字，实际是多少」这类验收，**量 `getComputedStyle` 的实际值** —— 看 class 名会骗人（class 写了 `font-semibold`，computed 可能被全局规则覆盖成 500）。
+
+可选的度量示例见 [measure-page.cjs](scripts/measure-page.cjs)：
+
+```bash
+# 已部署页面：量渲染后的实际样式
+node skills/frontend-e2e/scripts/measure-page.cjs <URL> <选择器>
+
+# 登录态拿不到时，注入测试数据（key 是 URL 子串，value 是返回的 JSON body）
+node skills/frontend-e2e/scripts/measure-page.cjs <URL> <选择器> --mock <mock.json>
+```
+
+输出：height / fontSize / fontWeight / fontVariantNumeric / lineHeight / color / backgroundColor /
+borderRadius / 位置矩形 / 是否越界 / 全部 attributes / 同页 `[role=dialog]` 的度量 / 截图路径。
+
+两条踩过的坑，写脚本时别再犯：
+
+- **注入点必须在任何页面脚本之前**（CDP `Page.addScriptToEvaluateOnNewDocument`），否则拦不到首屏请求。
+- **mock 的响应体形状要对**。权限类接口常是 fail-closed：形状写错时组件按「零权限」渲染，
+  看起来像「组件没渲染出来」，实际是 mock 数据不对。
+
+度量脚本只解决「实际值是多少」。**行为是否正确**（hover 会不会收起、Esc 会不会归还焦点、
+窄屏会不会越界）要用真实事件验证：`page.mouse.move()` / `page.hover()` / `page.press()`。
+
 ## 相关方法
 
 - [browser-verify](../browser-verify/SKILL.md)：截图与环境排障。

@@ -36,6 +36,24 @@ PY
 - **滚动到元素**：`js("document.querySelector('.sel')?.scrollIntoView({block:'center'})")`
 - **输入**：`type_text("...")` / `press_key("Enter")`
 
+## 度量值 vs 行为：两类验收不能互相替代
+
+| 要验的 | 用什么 | 例子 |
+|---|---|---|
+| **渲染成什么样** | `getComputedStyle` / `getBoundingClientRect` 的实际值 | 高度是不是 32px、字重是不是 600、数字是不是等宽、面板有没有越出视口 |
+| **行为对不对** | 真实事件（真实鼠标 / 键盘） | 指针划过间隙会不会误收起、Esc 之后焦点回到哪、Tab 移出后收没收起 |
+
+两个反复踩的坑：
+
+- **看 class 名不算验收**。class 写了 `font-semibold`，computed 可能是 500 —— 中间有全局规则覆盖
+  （Tailwind v4 会把设计稿直出 CSS 里的 `:is(.font-semibold)` 扁平成顶层 `.font-semibold{...}`，
+  泄漏成全站规则）。必须量 computed。
+- **假事件不算行为验证**。用 `dispatchEvent(new MouseEvent('mouseenter'))` 模拟 React 的
+  `onMouseEnter` **不生效**（React 合成事件不认不冒泡的 mouseenter），要真实 `page.mouse.move()`。
+  同理，透明 hover 桥必须是**真实 DOM 元素** —— 伪元素参与不了命中测试，做了等于没做。
+
+度量脚本见 [frontend-e2e measure-page.cjs](../frontend-e2e/scripts/measure-page.cjs)。
+
 ## 验证纪律
 
 - 部署后在项目实际目标环境复测，记录构建版本；本地验证不替代线上。
