@@ -26,6 +26,7 @@ license: MIT
 | 工程化 | 复用项目脚手架与组件；tokens 单一真源（CSS 变量 / OKLCH，按项目支持明暗主题）；组件分层；运行项目提供的 lint、类型检查与构建 | [engineering.md](references/engineering.md) |
 | 可观测 | 按项目接入浏览器日志、截图或性能观测；需要时检查版本更新与错误反馈 | [observability.md](references/observability.md) |
 | 可维护 | 维护 DESIGN.md + tokens 决策记录；为 Agent 标明 UI 改动前先读设计契约；更新运行与交付说明；避免硬编码设计值 | [maintainability.md](references/maintainability.md) |
+| 数据绑定 | 接口已约定的字段（值、币种/单位、渠道名、枚举）不常量顶替；真源取接口与运行时日志 | [data-binding.md](references/data-binding.md) |
 
 ## Step 0 · 硬性前置：找项目设计真源
 
@@ -81,6 +82,7 @@ rg -l -g '!node_modules' 'design-tokens|--color-|@theme' . | head
 - 新 token：先改 tokens + DESIGN.md 决策记录补一行，再用。不在组件里就地造。
 - 复用项目组件；hover / focus-visible / active / disabled / loading / empty / error 与视觉同时实现。
 - 不加 DESIGN.md 未声明的风格元素（新渐变、新字体、新插画风）。
+- **数据侧同规则**：接口已约定的字段（值、币种/单位、渠道名、枚举）不常量顶替，详见 [data-binding.md](references/data-binding.md)。判断口径与 tokens 一致——先问「真源在哪」，再问「这个值该不该由我决定」。
 
 ## Step 4 · 验收：项目规范 + 质量底线
 
